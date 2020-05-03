@@ -1,12 +1,13 @@
 document.addEventListener('DOMContentLoaded', function () {
     // default search query
-    var q = "chicken";
+    var q = "";
     var state = 0;
+    var request;
     requestData(q);
     
     function requestData(q) {
         // Step 1: create new instance of request object
-        let request = new XMLHttpRequest;
+        request = new XMLHttpRequest;
         console.log("1: request object created");
         console.log(q);
         // Step 2: Set the URL for the AJAX request to be the JSON file 
@@ -45,12 +46,17 @@ document.addEventListener('DOMContentLoaded', function () {
                             s += "<th style='background-color: #F6E8EA' class='button' id=" + i + ">" + data[x].strMeal + "</th>";
                         else
                             s += "<th style='background-color:#B6DCF6' class='button' id=" + i + ">" + data[x].strMeal + "</th>";
-                        s += "<th><img class='button' id=" + i + " src='" + data[x].strMealThumb + "' width='100' height='100'></img></th>";
+                        
+                        if ((i+1) % 3 != 0)
+                            s += "<th><img class='button' id=" + i + " src='" + data[x].strMealThumb + "' width='100' height='100' style='padding: 0px 10px 0px 0px;'></img></th>";
+                        else
+                            s += "<th><img class='button' id=" + i + " src='" + data[x].strMealThumb + "' width='100' height='100'></img></th>";
                         if (i == entries - 1)
                             s += "</tr>";
                         i += 1;
                     }
-                    s += "</table";             
+                    s += "</table";            
+                    // console.log(allMeals); 
                     document.getElementById("results").innerHTML = s;
                     listenClick(allMeals, ids);
                 }
@@ -72,21 +78,9 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log("4: Request sent");
     }
 
-    function createModal(num, meal_name) {
-        console.log(num, meal_name);
-        var divstr = "";
-        divstr += "<div class='modal' id='modal"+num+"'>";
-        divstr += "<div class='modal-content' id='modal"+num+"content'>";
-        divstr += "<span class='close'>&times;</span>";
-        divstr + "<p>"+meal_name+"</p>";
-        divstr += "</div>";
-        divstr += "</div>";
-        return divstr;
-    }
-
     function generate() {
         q = document.getElementById("query").value;
-        setTimeout(clear, 1000);
+        // setTimeout(clear, 1000);
         console.log("before");
         requestData(q);
         console.log("after");
@@ -96,33 +90,46 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('query').value = "";
     }
 
-    document.getElementById("button").addEventListener("click", generate);
+    document.getElementById("submit").addEventListener("click", generate);
     document.addEventListener("keypress", function(e) {
         if (e.keyCode == 13) {
             e.preventDefault();
-            $('#button').trigger("click");
+            $('#submit').trigger("click");
         }
     });
 });
 
+function getId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+
+    return (match && match[2].length === 11)
+      ? match[2]
+      : null;
+}
+    
+const videoId = getId('http://www.youtube.com/watch?v=zbYf5_S7oJo');
+const iframeMarkup = '<iframe width="560" height="315" src="//www.youtube.com/embed/' 
+    + videoId + '" frameborder="0" allowfullscreen></iframe>';
+
 function requestRecipe(q) {
     // Step 1: create new instance of request object
-    let request = new XMLHttpRequest;
+    request = new XMLHttpRequest;
     console.log("1: request object created");
     console.log(q);
     // Step 2: Set the URL for the AJAX request to be the JSON file 
     request.open('GET', 'https://www.themealdb.com/api/json/v1/1/lookup.php?i='+q, true);
     console.log("2: opened request file");
     // Step 3: set up event handler / callback
-    request.onload = function() {
+    request.onreadystatechange = function() {
         console.log("3: readystatechange event fired");
 
         if (request.readyState == 4 && request.status == 200) {
             var data = JSON.parse(request.responseText).meals[0];
+            console.log(data.strMeal);
             var s = data.strInstructions;
-            console.log(data.strYoutube);
-            s += "<br><a href='" + data.strYoutube + "'></a>";             
-            s += "<br><table class='ingredients' style='margin: auto'>";
+            console.log(data.strYoutube);          
+            s += "<br><br><table class='ingredients' style='margin: auto'>";
             i = 1;
             s += "<tr style='font-family: Helvetica, sans-serif;'>";
             s += "<th><b>INGREDIENTS</b></th>";
@@ -139,11 +146,14 @@ function requestRecipe(q) {
                 i += 1;
             }
             s += "</table>";
+            s += "<br><br><iframe width='450' height='270' src='//www.youtube.com/embed/"+ getId(data.strYoutube) + "' frameborder='0' allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe><br>";   
             //console.log(s);
             document.getElementById("recipe").innerHTML = "";
             document.getElementById("recipe").innerHTML = s;
+            console.log("here");
         } 
         else if (request.readyState == 4 && request.status != 200) {
+            console.log("oops");
             document.getElementById("results").innerHTML = "Uh Oh. Something went wrong."
         }
         else {
@@ -160,11 +170,11 @@ function requestRecipe(q) {
     console.log("4: Request sent");
 }
 
-
 function listenClick(meals, ids) {
     $(document).click(function(event) {
         console.log(event.target.id);
         if (parseInt(event.target.id) || event.target.id == 0) {
+            console.log(meals);
             var num = event.target.id;
             var modal = document.getElementById('modal');
             modal.style.display = "block";
@@ -174,15 +184,16 @@ function listenClick(meals, ids) {
                 console.log("CLOSE");
                 document.getElementById('modal').style.display = "none";
             });
-            console.log(ids[num]);
+            document.getElementById("recipe").innerHTML = "";
             requestRecipe(ids[num]);
         }
     });
     
     // When the user clicks anywhere outside of the modal, close it
     window.onclick = function(event) {
-        if (event.target.className === "modal" || event.target.id == "body") {
+        if (event.target.className != "modal-content" && event.target.className != "button") {
             this.document.getElementById("modal").style.display = "none";
+            this.document.getElementById("modal-content").innerHTML = "";
         }
     }
 }
