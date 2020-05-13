@@ -210,3 +210,7 @@ a {
         overflow: auto;
       }
   }
+
+#results {
+    overflow-x: scroll;
+}
