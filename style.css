@@ -214,3 +214,7 @@ a {
 #results {
     overflow-x: scroll;
 }
+
+#recipe {
+    overflow-x: scroll;
+}
