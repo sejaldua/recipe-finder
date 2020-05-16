@@ -130,8 +130,9 @@ span {
     margin: auto;
     padding: 20px;
     border: 1px solid #888;
-    width: 700px;
-    height: 90%;
+    max-width: 700px;
+    width: 90%;
+    height: 95%;
     color: black;
     overflow: auto;
   }
@@ -204,8 +205,8 @@ a {
         margin: auto;
         padding: 20px;
         border: 1px solid #888;
-        width: 320px;
-        height: 90%;
+        width: 90%;
+        height: 95%;
         color: black;
         overflow: auto;
       }

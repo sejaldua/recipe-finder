@@ -146,7 +146,8 @@ function requestRecipe(q) {
                 i += 1;
             }
             s += "</table>";
-            s += "<br><br><iframe width='450' height='270' src='//www.youtube.com/embed/"+ getId(data.strYoutube) + "' frameborder='0' allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe><br>";   
+            s += "<br><br><iframe class='api-frame' width='90%' height='350px' src='//www.youtube.com/embed/"+ getId(data.strYoutube) + "' frameborder='0' allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture' allowfullscreen></iframe><br>";   
+            iFrameResize({}, '.api-frame');
             //console.log(s);
             document.getElementById("recipe").innerHTML = "";
             document.getElementById("recipe").innerHTML = s;
